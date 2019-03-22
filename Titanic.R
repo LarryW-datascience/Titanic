@@ -30,3 +30,6 @@ titanic_data <- titanic_data %>%
 titanic_data <- titanic_data %>% 
   mutate(has_cabin_number = case_when(cabin == "" ~ 0,
                                       TRUE ~ 1))
+
+#Output data to CSV file
+write.csv(titanic_data, file="titanic_clean.csv", row.names = FALSE, quote = FALSE)
