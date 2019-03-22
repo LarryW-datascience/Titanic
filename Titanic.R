@@ -4,7 +4,7 @@ library(tidyr)
 #load file into memory
 titanic_data <- tbl_df(read.csv("titanic_original.csv"))
 
-#Replace missing/empty strings with "S"
+#Replace missing/empty embarkation data with "S"
 titanic_data <- titanic_data %>%
   mutate(embarked = replace(embarked, embarked == "", "S"))
 
@@ -18,3 +18,15 @@ mean_age = mean(titanic_data$age, na.rm = TRUE)
 #Using mean age can help us gain additional data for predictive modeling
 titanic_data <- titanic_data %>% 
   mutate(age = replace(age, is.na(age), mean_age))
+
+#Replace missing/empty lifeboat data with "None" after recoding lifeboat as 
+#character string
+titanic_data <- titanic_data %>% 
+  mutate(boat = as.character(boat)) %>% 
+  mutate(boat = replace(boat, boat == "", "None"))
+
+#Missing cabin number may indicate that the cabin number was lost when
+#the person was not seen again after the titnanic sank--add has_cabin_number column
+titanic_data <- titanic_data %>% 
+  mutate(has_cabin_number = case_when(cabin == "" ~ 0,
+                                      TRUE ~ 1))
