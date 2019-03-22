@@ -32,4 +32,4 @@ titanic_data <- titanic_data %>%
                                       TRUE ~ 1))
 
 #Output data to CSV file
-write.csv(titanic_data, file="titanic_clean.csv", row.names = FALSE, quote = FALSE)
+write.csv(titanic_data, file="titanic_clean.csv", row.names = FALSE, quote = TRUE)
