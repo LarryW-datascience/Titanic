@@ -1,0 +1,64 @@
+---
+title: "Titanic"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+In this project, I get the data from the [Kaggle Titanic dataset](https://www.kaggle.com/c/titanic/data) cleaned up and ready for analysis.  The first step in getting the data ready is to load the appropriate libraries and to load the data into memory, using the code below.  
+
+```{r message = FALSE}
+library(dplyr)
+library(tidyr)
+titanic_data <- tbl_df(read.csv("titanic_original.csv"))
+```
+
+The first 25 rows of the raw data are shown below:
+```{r echo = FALSE, message = FALSE}
+library(kableExtra)
+kable(titanic_data[1:25,], format = "markdown")
+```
+
+## Replacing missing embarkation data
+Some of the passengers did not have their port of embarkation recorded in the data.  It is known, however, that all of these passengers embark from Southampton.  Therefore, all of the empty embarkation data points are replaced with an 'S' using the code below; note that the missing values were shown as empty strings:
+```{r}
+titanic_data <- titanic_data %>%
+  mutate(embarked = replace(embarked, embarked == "", "S"))
+```
+
+## Replacing missing age values
+Some of the passengers' ages were not recorded.  The mean passenger age was therefore added as a placeholder using the code below.  Other things that might have made sense to do instead would be things like using the median age, or coding a non-sensical value such as 999 to show mising age values.
+```{r}
+mean_age = mean(titanic_data$age, na.rm = TRUE)
+titanic_data <- titanic_data %>% 
+  mutate(age = replace(age, is.na(age), mean_age))
+```
+
+## Replace missing lifeboat values with 'None'
+As is well-known, many of the Titanic passengers did not make it onto a lifeboat.  These passengers have missing values in the Lifeboat column, which are replaced with "None".  The code below does this; note that the lifeboat was initially coded as an integer, which had to be changed to a character value to accommodate the string "None".
+```{r}
+titanic_data <- titanic_data %>% 
+  mutate(boat = as.character(boat)) %>% 
+  mutate(boat = replace(boat, boat == "", "None"))
+```
+
+## Adding has_cabin_number row
+Some of the passengers' cabin numbers were not recorded--this may be related to their survival, since documents were likely lost when the Titanic sank.  The code below adds a column labeled 'has_cabin_number' to indicate whether or not a cabin number was recorded for each passenger:
+```{r}
+titanic_data <- titanic_data %>% 
+  mutate(has_cabin_number = case_when(cabin == "" ~ 0,
+                                      TRUE ~ 1))
+```
+## Outputting CSV file
+Finally, the code below outputs a CSV file from the processed data:
+```{r}
+write.csv(titanic_data, file="titanic_clean.csv", row.names = FALSE, quote = TRUE)
+```
+A brief summary (the first 25 rows) of the processed data is shown below:
+```{r echo = FALSE, message = FALSE}
+kable(titanic_data[1:25,], format = "markdown")
+```
